@@ -43,6 +43,11 @@ yarn_install: &yarn_install
   name: Install Dependencies
   command: yarn install --frozen-lockfile --non-interactive
 
+# coverage
+coverage: &coverage
+  name: coverage
+  command: bash <(curl -s https://codecov.io/bash)
+
 jobs:
   install:
     <<: *defaults
@@ -108,6 +113,7 @@ jobs:
       - restore_cache:
           <<: *yarn_cache
       - run: yarn affected:test -- ${AFFECTED_ARGS} --parallel -- --ci --code-coverage
+      - run: *coverage
   e2e:
     <<: *defaults
     steps:
@@ -121,7 +127,6 @@ jobs:
       - run: yarn affected:e2e -- ${AFFECTED_ARGS} --configuration production -- --headless
       - store_artifacts:
           path: dist/cypress
-
   deploy:
     <<: *defaults
     steps:
