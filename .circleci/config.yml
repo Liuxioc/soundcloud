@@ -2,7 +2,7 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.2.3
@@ -46,11 +46,6 @@ deploy_cache: &deploy_cache
 yarn_install: &yarn_install
   name: Install Dependencies
   command: yarn install --frozen-lockfile --non-interactive
-
-# coverage
-coverage: &coverage
-  name: coverage
-  command: bash <(curl -s https://codecov.io/bash)
 
 jobs:
   install:
@@ -120,10 +115,11 @@ jobs:
       - store_artifacts:
           path: coverage
       - codacy/send_report:
-        coverage-reports: coverage/apps/soundcloud/lcov.info
-        project-token: $CODACY_PROJECT_TOKEN
+          coverage-reports: coverage/apps/soundcloud/lcov.info
+          project-token: $CODACY_PROJECT_TOKEN
       - codecov/upload:
           file: coverage/**/lcov.info
+
   e2e:
     <<: *defaults
     steps:
@@ -137,6 +133,7 @@ jobs:
       - run: yarn affected:e2e -- ${AFFECTED_ARGS} --configuration production -- --headless
       - store_artifacts:
           path: dist/cypress
+
   deploy:
     <<: *defaults
     steps:
